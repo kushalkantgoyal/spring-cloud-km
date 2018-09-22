@@ -33,7 +33,6 @@ public class CurrencyConversionController {
                 .getForEntity("http://localhost:8000/currency-exchange/from/{from}/to/{to}",
                         CurrencyConversion.class,pathVariables);
         CurrencyConversion currencyConversion= responseEntity.getBody();
-        currencyConversion.setPort(Integer.parseInt(environment.getProperty("local.server.port")));
         currencyConversion.setTotalCalculatedAmount(quantity.multiply(currencyConversion.getConversionMultiple()));
         return currencyConversion;
     }
@@ -43,7 +42,6 @@ public class CurrencyConversionController {
                                                   @PathVariable String to,
                                                   @PathVariable BigDecimal quantity){
         CurrencyConversion currencyConversion= currencyExchangeServiceProxy.retrieveExchangeValue(from,to);
-        currencyConversion.setPort(Integer.parseInt(environment.getProperty("local.server.port")));
         currencyConversion.setTotalCalculatedAmount(quantity.multiply(currencyConversion.getConversionMultiple()));
         return currencyConversion;
     }
