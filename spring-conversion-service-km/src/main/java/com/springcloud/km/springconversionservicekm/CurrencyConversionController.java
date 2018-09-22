@@ -19,6 +19,9 @@ public class CurrencyConversionController {
     @Autowired
     Environment environment;
 
+    @Autowired
+    CurrencyExchangeServiceProxy currencyExchangeServiceProxy;
+
     @GetMapping("/currency-converter/from/{from}/to/{to}/quantity/{quantity}")
     public CurrencyConversion covertCurrency(@PathVariable String from,
                                              @PathVariable String to,
@@ -30,6 +33,16 @@ public class CurrencyConversionController {
                 .getForEntity("http://localhost:8000/currency-exchange/from/{from}/to/{to}",
                         CurrencyConversion.class,pathVariables);
         CurrencyConversion currencyConversion= responseEntity.getBody();
+        currencyConversion.setPort(Integer.parseInt(environment.getProperty("local.server.port")));
+        currencyConversion.setTotalCalculatedAmount(quantity.multiply(currencyConversion.getConversionMultiple()));
+        return currencyConversion;
+    }
+
+    @GetMapping("/currency-converter-feign/from/{from}/to/{to}/quantity/{quantity}")
+    public CurrencyConversion covertCurrencyFeign(@PathVariable String from,
+                                                  @PathVariable String to,
+                                                  @PathVariable BigDecimal quantity){
+        CurrencyConversion currencyConversion= currencyExchangeServiceProxy.retrieveExchangeValue(from,to);
         currencyConversion.setPort(Integer.parseInt(environment.getProperty("local.server.port")));
         currencyConversion.setTotalCalculatedAmount(quantity.multiply(currencyConversion.getConversionMultiple()));
         return currencyConversion;
